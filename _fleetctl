@@ -1,19 +1,4 @@
-#compdef fleetctl
-# ------------------------------------------------------------------------------
-# Description
-# -----------
-#
-#  Completion script for fleetctl (http://github.com/coreos/fleet).
-#
-# ------------------------------------------------------------------------------
-# Authors
-# -------
-#
-#  * Timo Derstappen (https://github.com/teemow)
-#
-# ------------------------------------------------------------------------------
-
-
+# export FLEET_SERVICES="~/Sites/server/services/**/*.{service,timer}"
 local curcontext="$curcontext" state line _opts ret=1
 
 _arguments -C -A "-v" -A "--version" \
@@ -46,10 +31,13 @@ case $state in
       help)
         _values 'commands' 'cat' 'destroy' 'journal' 'list-machines' 'list-units' 'load' 'ssh' 'start' 'status' 'stop' 'submit' 'unload' 'verify' 'version' && ret=0
         ;;
-      stop)
-        _arguments \
-          '(--block-attempts)--block-attempts=-[Wait until the jobs are stopped, performing up to N attempts before giving up. A value of 0 indicates no limit]'
-        ret=0
+      start|stop|destroy|unload|cat|journal|status)
+        _values \
+          $(fleetctl list-units | awk '/[a-z]+/ { print $1 }') && ret=0
+        ;;
+      ssh)
+        _values \
+          $(fleetctl list-machines | awk '/(.*?)\.\./ { print $1 }') && ret=0
         ;;
       exec)
         _normal && ret=0
